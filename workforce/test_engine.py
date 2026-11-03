@@ -19,6 +19,14 @@ class WorkforceTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             route_model(["coding"], ["unknown"])
 
+    def test_empty_allowlist_rejected(self):
+        with self.assertRaises(ValueError):
+            route_model(["coding"], [])
+
+    def test_nan_feedback_rejected(self):
+        with self.assertRaises(ValueError):
+            record_feedback("test-002", True, float("nan"), 0.1)
+
     def test_feedback_training_opt_out(self):
         self.assertIn('"eligible_for_training": false', record_feedback("test-001", True, 0.9, 0.1))
 
