@@ -1,0 +1,19 @@
+name: JAWE unit tests
+on:
+  push:
+    branches: [main, feature/autonomous-workforce-v1]
+    paths: ['workforce/**', '.github/workflows/workforce-tests.yml']
+  pull_request:
+    paths: ['workforce/**', '.github/workflows/workforce-tests.yml']
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test workforce
+        run: python -m unittest discover -s workforce -p 'test_*.py' -v
