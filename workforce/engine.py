@@ -34,7 +34,7 @@ class RoleProposal:
 
 def route_model(skills: Sequence[str], allowed: Sequence[str] | None = None) -> str:
     """Simple transparent baseline router; replace only after benchmark evaluation."""
-    eligible = set(allowed or MODEL_CATALOG)
+    eligible = set(MODEL_CATALOG if allowed is None else allowed)
     scores = {model: len(set(skills) & set(info["strengths"]))
               for model, info in MODEL_CATALOG.items() if model in eligible}
     if not scores:
@@ -65,7 +65,8 @@ def record_feedback(task_id: str, approved: bool, quality: float, cost_usd: floa
     """Return a redacted training-candidate record, not a model update."""
     if not re.fullmatch(r"[A-Za-z0-9_-]{1,80}", task_id):
         raise ValueError("Invalid task id")
-    if not (0 <= quality <= 1 and 0 <= cost_usd <= 100000):
+    import math
+    if not (math.isfinite(quality) and math.isfinite(cost_usd) and 0 <= quality <= 1 and 0 <= cost_usd <= 100000):
         raise ValueError("Invalid metrics")
     return json.dumps({"task_id": task_id, "approved": approved,
                        "quality": quality, "cost_usd": cost_usd,
