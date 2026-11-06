@@ -1,0 +1,28 @@
+name: AOEE open source discovery
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '15 6 * * *'
+permissions:
+  contents: read
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Discover candidates (read-only)
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p reports
+          python -m workforce.open_source_radar --topic agents --limit 5 > reports/agents.json
+          python -m workforce.open_source_radar --topic skills --limit 5 > reports/skills.json
+          python -m workforce.open_source_radar --topic models --limit 5 > reports/models.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aoee-discovery-report
+          path: reports/*.json
+          retention-days: 14
